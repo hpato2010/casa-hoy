@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f6f1e7">
+  <meta name="theme-color" content="#6366f1">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Casa Hoy">
   <meta name="description" content="Casa Hoy: lista de compras, tareas, menú semanal y gastos del hogar. Funciona sin internet y guarda todo en tu dispositivo.">
   <title>Casa Hoy · tu día en casa</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23c2703d'/%3E%3Cpath d='M50 22 18 48v30h22V58h20v20h22V48z' fill='%23fff7ee'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%236366f1'/%3E%3Cpath d='M50 22 18 48v30h22V58h20v20h22V48z' fill='%23ffffff'/%3E%3C/svg%3E">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
@@ -19,18 +19,18 @@
   <div class="app">
     <header class="topbar">
       <div class="brand">
-        <span class="logo" aria-hidden="true">🏡</span>
+        <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1v-9.5Z"/></svg></span>
         <div class="brand-text">
           <h1>Casa Hoy</h1>
           <p class="brand-date" id="header-date"></p>
         </div>
       </div>
       <nav class="tabs" aria-label="Secciones">
-        <button class="tab is-active" type="button" data-view="hoy" aria-current="page"><span class="tab-icon" aria-hidden="true">🏠</span>Hoy</button>
-        <button class="tab" type="button" data-view="compras"><span class="tab-icon" aria-hidden="true">🛒</span>Compras</button>
-        <button class="tab" type="button" data-view="tareas"><span class="tab-icon" aria-hidden="true">✅</span>Tareas</button>
-        <button class="tab" type="button" data-view="comidas"><span class="tab-icon" aria-hidden="true">🍽️</span>Comidas</button>
-        <button class="tab" type="button" data-view="gastos"><span class="tab-icon" aria-hidden="true">💰</span>Gastos</button>
+        <button class="tab is-active" type="button" data-view="hoy" aria-current="page"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1v-9.5Z"/></svg></span>Hoy</button>
+        <button class="tab" type="button" data-view="compras"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.2 9.2a1.6 1.6 0 0 0 1.6 1.2h7.9a1.6 1.6 0 0 0 1.5-1.1L20 7H6"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg></span>Compras</button>
+        <button class="tab" type="button" data-view="tareas"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="m8.5 12 2.4 2.4L16 9.5"/></svg></span>Tareas</button>
+        <button class="tab" type="button" data-view="comidas"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v5.5a2.5 2.5 0 0 0 5 0V3"/><path d="M9.5 11v10"/><path d="M17 3c-1.6 1.8-2.4 3.9-2.4 6.1 0 2 .8 3.8 2.4 5.3V21"/></svg></span>Comidas</button>
+        <button class="tab" type="button" data-view="gastos"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="3.5"/><path d="M3 10.5h18"/><circle cx="16.5" cy="15.5" r="1.3"/></svg></span>Gastos</button>
       </nav>
     </header>
 
@@ -58,7 +58,7 @@
         <div class="grid">
           <article class="card">
             <header class="card-head">
-              <h3>✅ Tareas de hoy</h3>
+              <h3><span class="icon-tile tint-green" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="m8.5 12 2.4 2.4L16 9.5"/></svg></span> Tareas de hoy</h3>
               <button class="link" type="button" data-goto="tareas">Ver todas</button>
             </header>
             <div class="list" id="hoy-tareas"></div>
@@ -66,7 +66,7 @@
 
           <article class="card">
             <header class="card-head">
-              <h3>🛒 Compras pendientes</h3>
+              <h3><span class="icon-tile tint-amber" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.2 9.2a1.6 1.6 0 0 0 1.6 1.2h7.9a1.6 1.6 0 0 0 1.5-1.1L20 7H6"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg></span> Compras pendientes</h3>
               <button class="link" type="button" data-goto="compras">Abrir lista</button>
             </header>
             <div class="list" id="hoy-compras"></div>
@@ -74,7 +74,7 @@
 
           <article class="card">
             <header class="card-head">
-              <h3>🍽️ Comidas de hoy</h3>
+              <h3><span class="icon-tile tint-rose" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v5.5a2.5 2.5 0 0 0 5 0V3"/><path d="M9.5 11v10"/><path d="M17 3c-1.6 1.8-2.4 3.9-2.4 6.1 0 2 .8 3.8 2.4 5.3V21"/></svg></span> Comidas de hoy</h3>
               <button class="link" type="button" data-goto="comidas">Planificar</button>
             </header>
             <div class="meal-peek" id="hoy-comidas"></div>
@@ -82,7 +82,7 @@
 
           <article class="card">
             <header class="card-head">
-              <h3>💰 Gastos del mes</h3>
+              <h3><span class="icon-tile tint-sky" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="3.5"/><path d="M3 10.5h18"/><circle cx="16.5" cy="15.5" r="1.3"/></svg></span> Gastos del mes</h3>
               <button class="link" type="button" data-goto="gastos">Ver detalle</button>
             </header>
             <div class="expense-peek" id="hoy-gastos"></div>
@@ -90,7 +90,7 @@
 
           <article class="card card-wide">
             <header class="card-head">
-              <h3>📌 Recordatorios</h3>
+              <h3><span class="icon-tile tint-violet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.3 7-11a7 7 0 1 0-14 0c0 5.7 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg></span> Recordatorios</h3>
               <span class="pill" id="notes-count">0</span>
             </header>
             <form class="inline-form" id="note-form" autocomplete="off">
@@ -191,11 +191,11 @@
 
         <div class="grid">
           <article class="card">
-            <header class="card-head"><h3>Resumen del mes</h3></header>
+            <header class="card-head"><h3><span class="icon-tile tint-indigo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-6"/><path d="M22 20H2"/></svg></span> Resumen del mes</h3></header>
             <div id="exp-summary"></div>
           </article>
           <article class="card">
-            <header class="card-head"><h3>Movimientos</h3><span class="pill" id="exp-count">0</span></header>
+            <header class="card-head"><h3><span class="icon-tile tint-slate" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><circle cx="3.6" cy="6" r="1"/><circle cx="3.6" cy="12" r="1"/><circle cx="3.6" cy="18" r="1"/></svg></span> Movimientos</h3><span class="pill" id="exp-count">0</span></header>
             <div class="list" id="exp-list"></div>
           </article>
         </div>

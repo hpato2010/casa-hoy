@@ -196,7 +196,7 @@
           ${done ? 'checked' : ''} aria-label="${done ? 'Marcar como pendiente' : 'Marcar como hecha'}: ${esc(task.title)}">
         <div class="row-main">
           <div class="row-title">${esc(task.title)}</div>
-          <div class="row-meta">${meta.join(' <span class="dot">·</span> ')}</div>
+          <div class="row-meta">${meta.join(' · ')}</div>
         </div>
         ${remove}
       </div>`;
@@ -263,7 +263,7 @@
         return doneA - doneB || a.title.localeCompare(b.title, 'es');
       });
       taskBox.innerHTML = sorted.slice(0, 6).map(t => taskRow(t, today, { showFrequency: false, showDelete: false })).join('');
-      if (sorted.length > 6) taskBox.innerHTML += emptyHTML(`y ${sorted.length - 6} tareas más.`, 'tareas', 'Ver todas');
+      if (sorted.length > 6) taskBox.innerHTML += emptyHTML(`y ${oneOrMany(sorted.length - 6, 'tarea más', 'tareas más')}.`, 'tareas', 'Ver todas');
     }
 
     // compras
@@ -278,7 +278,7 @@
       const sorted = pendingShopping.slice().sort((a, b) => a.createdAt - b.createdAt);
       shopBox.innerHTML = sorted.slice(0, 5).map(item => shopRow(item, false)).join('');
       if (sorted.length > 5) {
-        shopBox.innerHTML += emptyHTML(`y ${sorted.length - 5} productos más.`, 'compras', 'Abrir lista');
+        shopBox.innerHTML += emptyHTML(`y ${oneOrMany(sorted.length - 5, 'producto más', 'productos más')}.`, 'compras', 'Abrir lista');
       }
     }
 
@@ -291,7 +291,7 @@
       $('#hoy-comidas').innerHTML = L.MEALS.map(meal => {
         const value = (plan[meal.key] || '').trim();
         return `<div class="meal-row">
-          <span class="meal-label">${meal.icon} ${meal.label}</span>
+          <span class="meal-label"><span class="meal-dot meal-dot--${meal.key}"></span>${meal.label}</span>
           <span class="meal-value${value ? '' : ' empty'}">${value ? esc(value) : 'Sin planificar'}</span>
         </div>`;
       }).join('');
@@ -395,7 +395,7 @@
       const isToday = index === todayIndex;
       const meals = L.MEALS.map(meal => `
         <div class="meal-field">
-          <label for="meal-${index}-${meal.key}">${meal.icon} ${meal.label}</label>
+          <label for="meal-${index}-${meal.key}"><span class="meal-dot meal-dot--${meal.key}"></span>${meal.label}</label>
           <textarea id="meal-${index}-${meal.key}" data-day="${index}" data-meal="${meal.key}" rows="2"
             placeholder="Idea…" maxlength="80">${esc(plan[meal.key] || '')}</textarea>
         </div>`).join('');
