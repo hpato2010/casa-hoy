@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f1e7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Casa Hoy">
+  <meta name="description" content="Casa Hoy: lista de compras, tareas, menú semanal y gastos del hogar. Funciona sin internet y guarda todo en tu dispositivo.">
+  <title>Casa Hoy · tu día en casa</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%23c2703d'/%3E%3Cpath d='M50 22 18 48v30h22V58h20v20h22V48z' fill='%23fff7ee'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">🏡</span>
+        <div class="brand-text">
+          <h1>Casa Hoy</h1>
+          <p class="brand-date" id="header-date"></p>
+        </div>
+      </div>
+      <nav class="tabs" aria-label="Secciones">
+        <button class="tab is-active" type="button" data-view="hoy" aria-current="page"><span class="tab-icon" aria-hidden="true">🏠</span>Hoy</button>
+        <button class="tab" type="button" data-view="compras"><span class="tab-icon" aria-hidden="true">🛒</span>Compras</button>
+        <button class="tab" type="button" data-view="tareas"><span class="tab-icon" aria-hidden="true">✅</span>Tareas</button>
+        <button class="tab" type="button" data-view="comidas"><span class="tab-icon" aria-hidden="true">🍽️</span>Comidas</button>
+        <button class="tab" type="button" data-view="gastos"><span class="tab-icon" aria-hidden="true">💰</span>Gastos</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- ================= HOY ================= -->
+      <section class="view is-active" id="view-hoy" aria-labelledby="hoy-title">
+        <div class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow" id="greeting">Buenos días</p>
+            <h2 id="hoy-title">Hoy en casa</h2>
+            <p class="hero-summary" id="today-summary">Un día tranquilo por delante.</p>
+          </div>
+          <div class="hero-progress" aria-hidden="true">
+            <div class="ring-wrap">
+              <svg class="ring" viewBox="0 0 40 40">
+                <circle class="ring-track" cx="20" cy="20" r="16"></circle>
+                <circle class="ring-fill" id="hero-ring-fill" cx="20" cy="20" r="16"></circle>
+              </svg>
+              <span id="hero-ring-label">0%</span>
+            </div>
+            <span class="ring-caption">tareas de hoy</span>
+          </div>
+        </div>
+
+        <div class="grid">
+          <article class="card">
+            <header class="card-head">
+              <h3>✅ Tareas de hoy</h3>
+              <button class="link" type="button" data-goto="tareas">Ver todas</button>
+            </header>
+            <div class="list" id="hoy-tareas"></div>
+          </article>
+
+          <article class="card">
+            <header class="card-head">
+              <h3>🛒 Compras pendientes</h3>
+              <button class="link" type="button" data-goto="compras">Abrir lista</button>
+            </header>
+            <div class="list" id="hoy-compras"></div>
+          </article>
+
+          <article class="card">
+            <header class="card-head">
+              <h3>🍽️ Comidas de hoy</h3>
+              <button class="link" type="button" data-goto="comidas">Planificar</button>
+            </header>
+            <div class="meal-peek" id="hoy-comidas"></div>
+          </article>
+
+          <article class="card">
+            <header class="card-head">
+              <h3>💰 Gastos del mes</h3>
+              <button class="link" type="button" data-goto="gastos">Ver detalle</button>
+            </header>
+            <div class="expense-peek" id="hoy-gastos"></div>
+          </article>
+
+          <article class="card card-wide">
+            <header class="card-head">
+              <h3>📌 Recordatorios</h3>
+              <span class="pill" id="notes-count">0</span>
+            </header>
+            <form class="inline-form" id="note-form" autocomplete="off">
+              <label class="sr-only" for="note-input">Nuevo recordatorio</label>
+              <input id="note-input" maxlength="120" placeholder="Ej: regar las plantas, llamar al gasfiter…" required>
+              <button class="btn" type="submit">Añadir</button>
+            </form>
+            <div class="list" id="notes-list"></div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ================= COMPRAS ================= -->
+      <section class="view" id="view-compras" aria-labelledby="compras-title" hidden>
+        <div class="view-head">
+          <div>
+            <h2 id="compras-title">Lista de compras</h2>
+            <p class="muted" id="compras-resumen">Todo lo que falta en casa, en un solo lugar.</p>
+          </div>
+        </div>
+
+        <form class="card inline-form" id="shop-form" autocomplete="off">
+          <label class="sr-only" for="shop-name">Producto</label>
+          <input id="shop-name" placeholder="¿Qué falta? Ej: leche" required maxlength="80">
+          <label class="sr-only" for="shop-qty">Cantidad</label>
+          <input id="shop-qty" class="qty" placeholder="Cant." maxlength="16">
+          <label class="sr-only" for="shop-cat">Categoría</label>
+          <select id="shop-cat"></select>
+          <button class="btn" type="submit">Agregar</button>
+        </form>
+
+        <div id="shop-list" class="shop-groups"></div>
+
+        <div class="row-actions">
+          <button class="btn ghost" type="button" id="shop-clear">Limpiar comprados</button>
+        </div>
+      </section>
+
+      <!-- ================= TAREAS ================= -->
+      <section class="view" id="view-tareas" aria-labelledby="tareas-title" hidden>
+        <div class="view-head">
+          <div>
+            <h2 id="tareas-title">Tareas de la casa</h2>
+            <p class="muted" id="tareas-resumen">Se repiten solas: marca una y vuelve cuando toque.</p>
+          </div>
+        </div>
+
+        <form class="card inline-form" id="task-form" autocomplete="off">
+          <label class="sr-only" for="task-title">Tarea</label>
+          <input id="task-title" placeholder="Ej: sacar la basura" required maxlength="80">
+          <label class="sr-only" for="task-freq">Frecuencia</label>
+          <select id="task-freq"></select>
+          <label class="sr-only" for="task-person">Persona</label>
+          <input id="task-person" placeholder="¿Quién? (opcional)" maxlength="40">
+          <button class="btn" type="submit">Añadir</button>
+        </form>
+
+        <div id="task-list" class="list card padded"></div>
+      </section>
+
+      <!-- ================= COMIDAS ================= -->
+      <section class="view" id="view-comidas" aria-labelledby="comidas-title" hidden>
+        <div class="view-head">
+          <div>
+            <h2 id="comidas-title">Menú semanal</h2>
+            <p class="muted">El plan se repite cada semana. Hoy está resaltado.</p>
+          </div>
+          <button class="btn ghost small" type="button" id="meals-clear">Vaciar menú</button>
+        </div>
+
+        <div class="week-grid" id="week-grid"></div>
+        <p class="hint">Consejo: escribe ideas sueltas, no hace falta que sea perfecto. Con tener una idea por comida ya se gana tiempo.</p>
+      </section>
+
+      <!-- ================= GASTOS ================= -->
+      <section class="view" id="view-gastos" aria-labelledby="gastos-title" hidden>
+        <div class="view-head">
+          <div>
+            <h2 id="gastos-title">Gastos de la casa</h2>
+            <p class="muted">Anota lo que gastas y mira el total del mes.</p>
+          </div>
+          <div class="month-nav">
+            <button class="icon-btn" type="button" id="exp-prev" aria-label="Mes anterior">←</button>
+            <span id="exp-month-label">Noviembre 2026</span>
+            <button class="icon-btn" type="button" id="exp-next" aria-label="Mes siguiente">→</button>
+          </div>
+        </div>
+
+        <form class="card inline-form" id="exp-form" autocomplete="off">
+          <label class="sr-only" for="exp-desc">Descripción</label>
+          <input id="exp-desc" placeholder="Ej: compra semanal" required maxlength="80">
+          <label class="sr-only" for="exp-amount">Monto</label>
+          <input id="exp-amount" class="amount" type="number" inputmode="numeric" min="0" step="1" placeholder="Monto $" required>
+          <label class="sr-only" for="exp-cat">Categoría</label>
+          <select id="exp-cat"></select>
+          <button class="btn" type="submit">Anotar</button>
+        </form>
+
+        <div class="grid">
+          <article class="card">
+            <header class="card-head"><h3>Resumen del mes</h3></header>
+            <div id="exp-summary"></div>
+          </article>
+          <article class="card">
+            <header class="card-head"><h3>Movimientos</h3><span class="pill" id="exp-count">0</span></header>
+            <div class="list" id="exp-list"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Tus datos se guardan solo en este dispositivo. Sin cuentas ni internet.</p>
+      <div class="footer-actions">
+        <button class="link" type="button" id="export-btn">Exportar copia</button>
+        <label class="link" for="import-file">Importar copia</label>
+        <input id="import-file" type="file" accept="application/json,.json" hidden>
+        <button class="link danger" type="button" id="reset-btn">Borrar todo</button>
+      </div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="logic.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
