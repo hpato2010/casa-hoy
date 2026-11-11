@@ -111,7 +111,16 @@
       if (!item || typeof item !== 'object') return null;
       const text = typeof item.text === 'string' ? item.text.trim() : '';
       if (!text) return null;
-      return { id: typeof item.id === 'string' && item.id ? item.id : uid(), text, createdAt: Number(item.createdAt) || Date.now() };
+      const rawDue = typeof item.dueAt === 'string' ? item.dueAt : '';
+      const dueAt = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(rawDue) ? rawDue : null;
+      return {
+        id: typeof item.id === 'string' && item.id ? item.id : uid(),
+        text,
+        dueAt,
+        done: Boolean(item.done),
+        notifiedAt: Number(item.notifiedAt) || null,
+        createdAt: Number(item.createdAt) || Date.now()
+      };
     }).filter(Boolean);
 
     const ui = (data.ui && typeof data.ui === 'object') ? data.ui : {};
@@ -169,6 +178,112 @@
     el.hidden = false;
     window.clearTimeout(toastTimer);
     toastTimer = window.setTimeout(() => { el.hidden = true; }, 3200);
+  }
+
+  /* ---------------- recordatorios y avisos ---------------- */
+
+  function updateNotifyUI() {
+    const status = $('#notify-status');
+    const button = $('#notify-enable');
+    if (!status || !button) return;
+
+    if (!('Notification' in window)) {
+      status.textContent = 'Este navegador no permite avisos. Puedes exportar al calendario.';
+      button.hidden = true;
+      return;
+    }
+    if (Notification.permission === 'granted') {
+      status.textContent = 'Avisos activados mientras la app esté abierta.';
+      button.hidden = true;
+    } else if (Notification.permission === 'denied') {
+      status.textContent = 'Los avisos están bloqueados en el navegador. Usa el calendario.';
+      button.hidden = true;
+    } else {
+      status.textContent = 'Activa los avisos para que la app te avise mientras está abierta.';
+      button.hidden = false;
+    }
+  }
+
+  function fireNotification(note) {
+    toast(`⏰ ${note.text}`);
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    const title = 'Casa Hoy · Recordatorio';
+    const options = {
+      body: note.text,
+      icon: 'icons/icon-192.png',
+      badge: 'icons/favicon-32.png',
+      tag: `casa-hoy-${note.id}`
+    };
+    try {
+      if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.ready
+          .then(registration => registration.showNotification(title, options))
+          .catch(() => { try { new Notification(title, options); } catch (err) { /* sin notificación */ } });
+        return;
+      }
+    } catch (err) { /* seguir con Notification */ }
+    try { new Notification(title, options); } catch (err) { /* el aviso queda en el toast */ }
+  }
+
+  function checkReminders() {
+    if (document.hidden) return;
+    const now = new Date();
+    const due = state.notes.filter(note => L.isReminderDue(note, now) && !note.notifiedAt);
+    if (!due.length) return;
+    due.forEach(note => {
+      note.notifiedAt = Date.now();
+      fireNotification(note);
+    });
+    save();
+    renderHoy();
+  }
+
+  async function enableNotifications() {
+    if (!('Notification' in window)) {
+      toast('Este navegador no permite avisos. Usa la exportación al calendario.');
+      return;
+    }
+    try {
+      const permission = await Notification.requestPermission();
+      updateNotifyUI();
+      if (permission === 'granted') toast('Avisos activados. Te avisaré mientras la app esté abierta.');
+      else if (permission === 'denied') toast('Avisos bloqueados. Puedes usar la exportación al calendario.');
+      else toast('No se activaron los avisos.');
+    } catch (err) {
+      toast('No se pudieron activar los avisos.');
+    }
+  }
+
+  function downloadICS(notes) {
+    const dated = (Array.isArray(notes) ? notes : []).filter(note => note && note.dueAt);
+    if (!dated.length) {
+      toast('Ese recordatorio no tiene fecha.');
+      return;
+    }
+    try {
+      const content = L.buildICS(dated);
+      const blob = new Blob([content], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'casa-hoy-recordatorios.ics';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+      toast('Calendario descargado. Ábrelo para añadir el recordatorio.');
+    } catch (err) {
+      toast('No se pudo generar el calendario.');
+    }
+  }
+
+  function toggleNote(id) {
+    const note = state.notes.find(item => item.id === id);
+    if (!note) return;
+    note.done = !note.done;
+    save();
+    renderAll();
   }
 
   /* ---------------- piezas de interfaz ---------------- */
@@ -231,12 +346,18 @@
 
   function summaryText() {
     const today = L.todayISO();
+    const now = new Date();
     const due = state.tasks.filter(t => L.isDue(t, today));
     const shopping = state.shopping.filter(i => !i.done);
-    if (!due.length && !shopping.length) return 'Todo al día en casa. Disfruta el día.';
-    if (!due.length) return `Tareas listas. Quedan ${oneOrMany(shopping.length, 'compra', 'compras')} por hacer.`;
-    if (!shopping.length) return `Quedan ${oneOrMany(due.length, 'tarea', 'tareas')} para hoy.`;
-    return `${oneOrMany(due.length, 'tarea', 'tareas')} y ${oneOrMany(shopping.length, 'compra', 'compras')} para hoy.`;
+    const dueReminders = state.notes.filter(n => L.isReminderDue(n, now));
+    const parts = [];
+    if (due.length) parts.push(oneOrMany(due.length, 'tarea', 'tareas'));
+    if (shopping.length) parts.push(oneOrMany(shopping.length, 'compra', 'compras'));
+    if (dueReminders.length) {
+      parts.push(`${oneOrMany(dueReminders.length, 'recordatorio', 'recordatorios')} ${dueReminders.length === 1 ? 'te toca' : 'te tocan'}`);
+    }
+    if (!parts.length) return 'Todo al día en casa. Disfruta el día.';
+    return `${parts.join(' · ')}.`;
   }
 
   function renderHoy() {
@@ -307,19 +428,47 @@
       <p class="peek-note"><strong>${L.money(todayTotal)}</strong> hoy · ${oneOrMany(month.count, 'movimiento', 'movimientos')} este mes</p>`;
 
     // recordatorios
-    $('#notes-count').textContent = String(state.notes.length);
+    const now = new Date();
+    $('#notes-count').textContent = String(state.notes.filter(n => !n.done).length);
+    const icsButton = $('#ics-export');
+    if (icsButton) icsButton.hidden = !state.notes.some(n => n.dueAt && !n.done);
+
     const notesBox = $('#notes-list');
     if (!state.notes.length) {
-      notesBox.innerHTML = emptyHTML('Sin recordatorios. Anota lo que no quieres olvidar.');
+      notesBox.innerHTML = emptyHTML('Sin recordatorios. Puedes ponerles fecha y hora para que te avisen.');
     } else {
-      notesBox.innerHTML = state.notes
-        .slice()
-        .sort((a, b) => b.createdAt - a.createdAt)
-        .map(note => `
-          <div class="row">
-            <div class="row-main"><div class="row-title">${esc(note.text)}</div></div>
+      const sorted = state.notes.slice().sort((a, b) => {
+        if (Boolean(a.done) !== Boolean(b.done)) return a.done ? 1 : -1;
+        const aDate = L.reminderDate(a);
+        const bDate = L.reminderDate(b);
+        if (aDate && bDate) return aDate - bDate;
+        if (aDate) return -1;
+        if (bDate) return 1;
+        return b.createdAt - a.createdAt;
+      });
+
+      notesBox.innerHTML = sorted.map(note => {
+        const due = L.isReminderDue(note, now);
+        const when = L.reminderWhen(note, now);
+        const calendarIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>';
+        const calendarButton = note.dueAt
+          ? `<button class="row-icon" type="button" data-action="ics-note" data-id="${esc(note.id)}" aria-label="Añadir al calendario" title="Añadir al calendario">${calendarIcon}</button>`
+          : '';
+        return `
+          <div class="row${note.done ? ' done' : ''}${due ? ' is-due' : ''}">
+            <input class="check" type="checkbox" data-action="toggle-note" data-id="${esc(note.id)}"
+              ${note.done ? 'checked' : ''} aria-label="${note.done ? 'Marcar como pendiente' : 'Marcar como hecho'}: ${esc(note.text)}">
+            <div class="row-main">
+              <div class="row-title">${esc(note.text)}</div>
+              <div class="row-meta">
+                ${when ? `<span>${esc(when)}</span>` : '<span>Sin fecha</span>'}
+                ${due ? '<span class="pill pill-due">Te toca</span>' : ''}
+              </div>
+            </div>
+            ${calendarButton}
             <button class="row-delete" type="button" data-action="delete-note" data-id="${esc(note.id)}" aria-label="Eliminar recordatorio" title="Eliminar">×</button>
-          </div>`).join('');
+          </div>`;
+      }).join('');
     }
   }
 
@@ -492,6 +641,7 @@
 
   function renderAll() {
     lastRenderedDay = L.todayISO();
+    updateNotifyUI();
     renderHeader();
     renderHoy();
     renderCompras();
@@ -564,7 +714,13 @@
       case 'delete-task': deleteTask(id); break;
       case 'toggle-shop': toggleShopping(id); break;
       case 'delete-shop': deleteShopping(id); break;
+      case 'toggle-note': toggleNote(id); break;
       case 'delete-note': deleteNote(id); break;
+      case 'ics-note': {
+        const note = state.notes.find(item => item.id === id);
+        if (note) downloadICS([note]);
+        break;
+      }
       case 'delete-expense': deleteExpense(id); break;
       default: break;
     }
@@ -575,11 +731,29 @@
     const input = $('#note-input');
     const text = input.value.trim();
     if (!text) return;
-    state.notes.push({ id: uid(), text, createdAt: Date.now() });
+
+    const dateInput = $('#note-date');
+    const timeInput = $('#note-time');
+    const date = dateInput.value;
+    const time = timeInput.value;
+    const dueAt = date ? `${date}T${time || L.DEFAULT_REMINDER_TIME}` : null;
+
+    state.notes.push({
+      id: uid(),
+      text,
+      dueAt,
+      done: false,
+      notifiedAt: null,
+      createdAt: Date.now()
+    });
     save();
     input.value = '';
+    dateInput.value = '';
+    timeInput.value = '';
     renderAll();
     input.focus();
+    toast(dueAt ? 'Recordatorio guardado con fecha y hora.' : 'Recordatorio guardado.');
+    if (dueAt) window.setTimeout(checkReminders, 150);
   }
 
   function onSubmitShopping(event) {
@@ -784,9 +958,17 @@
     $('#import-file').addEventListener('change', importData);
     $('#reset-btn').addEventListener('click', resetData);
 
+    $('#notify-enable').addEventListener('click', enableNotifications);
+    $('#ics-export').addEventListener('click', () => downloadICS(state.notes.filter(note => note.dueAt && !note.done)));
+
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && L.todayISO() !== lastRenderedDay) renderAll();
+      if (document.hidden) return;
+      if (L.todayISO() !== lastRenderedDay) renderAll();
+      checkReminders();
     });
+    window.setInterval(() => {
+      if (!document.hidden) checkReminders();
+    }, 30000);
   }
 
   function init() {
@@ -795,6 +977,9 @@
     renderAll();
     const hashView = (window.location.hash || '').replace('#', '');
     setView(VIEWS.includes(hashView) ? hashView : (state.ui.view || 'hoy'), false);
+
+    updateNotifyUI();
+    window.setTimeout(checkReminders, 800);
 
     if (!storageOk) {
       toast('Sin almacenamiento: tus cambios no se guardarán. Abre la app con iniciar.command.');

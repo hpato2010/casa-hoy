@@ -1,5 +1,5 @@
 /* Casa Hoy · caché para funcionar sin conexión cuando está publicada con HTTPS */
-const CACHE = 'casa-hoy-v1';
+const CACHE = 'casa-hoy-v2';
 const ASSETS = [
   './',
   './index.html',

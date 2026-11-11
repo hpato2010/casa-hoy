@@ -138,6 +138,108 @@ const CasaLogic = (() => {
     return `Vuelve el ${formatShort(next)}`;
   };
 
+
+  /* ---------- recordatorios ---------- */
+  const DEFAULT_REMINDER_TIME = '09:00';
+
+  /** Convierte el dueAt local ("YYYY-MM-DDTHH:mm") en Date. */
+  const reminderDate = note => {
+    if (!note || !note.dueAt) return null;
+    const raw = String(note.dueAt);
+    const [datePart, timePart] = raw.split('T');
+    const [y, m, d] = datePart.split('-').map(Number);
+    if (!y || !m || !d) return null;
+    const [hh, mm] = (timePart || DEFAULT_REMINDER_TIME).split(':').map(Number);
+    return new Date(y, m - 1, d, hh || 0, mm || 0, 0, 0);
+  };
+
+  const isReminderDue = (note, now = new Date()) => {
+    if (!note || note.done) return false;
+    const when = reminderDate(note);
+    return Boolean(when && when.getTime() <= now.getTime());
+  };
+
+  const reminderTime = note => {
+    const when = reminderDate(note);
+    return when ? `${pad2(when.getHours())}:${pad2(when.getMinutes())}` : '';
+  };
+
+  /** Texto humano: "Hoy, 18:00", "Mañana, 09:00", "Atrasado…" */
+  const reminderWhen = (note, now = new Date()) => {
+    const when = reminderDate(note);
+    if (!when) return '';
+    const time = reminderTime(note);
+    const diff = dayDiff(toISO(now), toISO(when));
+    if (diff === 0) return `Hoy, ${time}`;
+    if (diff === 1) return `Mañana, ${time}`;
+    if (diff === -1) return `Ayer, ${time}`;
+    if (diff < -1) return `${formatShort(toISO(when))}, ${time}`;
+    if (diff < 7) return `En ${diff} días, ${time}`;
+    return `${formatShort(toISO(when))}, ${time}`;
+  };
+
+  const icsEscape = text => String(text == null ? '' : text)
+    .replace(/\\/g, '\\\\')
+    .replace(/\r?\n/g, '\\n')
+    .replace(/,/g, '\\,')
+    .replace(/;/g, '\\;');
+
+  const icsLocalDateTime = note => {
+    const when = reminderDate(note);
+    if (!when) return '';
+    return `${when.getFullYear()}${pad2(when.getMonth() + 1)}${pad2(when.getDate())}T${pad2(when.getHours())}${pad2(when.getMinutes())}00`;
+  };
+
+  const icsStamp = (now = new Date()) => {
+    const z = pad2;
+    return `${now.getUTCFullYear()}${z(now.getUTCMonth() + 1)}${z(now.getUTCDate())}T${z(now.getUTCHours())}${z(now.getUTCMinutes())}${z(now.getUTCSeconds())}Z`;
+  };
+
+  const foldICS = line => {
+    let out = '';
+    let rest = String(line);
+    while (rest.length > 73) {
+      out += rest.slice(0, 73) + '\r\n ';
+      rest = rest.slice(73);
+    }
+    return out + rest;
+  };
+
+  /** Genera un calendario .ics con los recordatorios que tengan fecha. */
+  const buildICS = (notes, now = new Date()) => {
+    const stamp = icsStamp(now);
+    const events = (Array.isArray(notes) ? notes : [])
+      .filter(note => note && note.dueAt && icsLocalDateTime(note))
+      .map(note => {
+        const summary = icsEscape(note.text || 'Recordatorio');
+        return [
+          'BEGIN:VEVENT',
+          `UID:${icsEscape(String(note.id || 'recordatorio'))}@casa-hoy`,
+          `DTSTAMP:${stamp}`,
+          `DTSTART:${icsLocalDateTime(note)}`,
+          `SUMMARY:${summary}`,
+          'DESCRIPTION:Recordatorio creado con Casa Hoy',
+          'BEGIN:VALARM',
+          'TRIGGER:-PT10M',
+          'ACTION:DISPLAY',
+          `DESCRIPTION:${summary}`,
+          'END:VALARM',
+          'END:VEVENT'
+        ].map(foldICS).join('\r\n');
+      });
+
+    const lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//Casa Hoy//Recordatorios//ES',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      ...events,
+      'END:VCALENDAR'
+    ];
+    return lines.join('\r\n') + '\r\n';
+  };
+
   const frequencyLabel = key => {
     const found = FREQUENCIES.find(f => f.key === key);
     return found ? found.label : 'Todos los días';
@@ -173,7 +275,8 @@ const CasaLogic = (() => {
     DAY_MS, WEEKDAYS, MEALS, SHOP_CATEGORIES, EXPENSE_CATEGORIES, FREQUENCIES,
     toISO, parseISO, todayISO, addDaysISO, dayDiff, weekdayIndex, weekdayName, monthKey,
     formatLong, formatShort, formatMonth, money, parseAmount, shiftMonth, currentMonth,
-    nextDue, isDoneToday, isDue, dueLabel, frequencyLabel, normalizeWeekPlan, monthlyTotals
+    nextDue, isDoneToday, isDue, dueLabel, frequencyLabel, normalizeWeekPlan, monthlyTotals,
+    DEFAULT_REMINDER_TIME, reminderDate, isReminderDue, reminderTime, reminderWhen, buildICS
   };
 
   if (typeof globalThis !== 'undefined') globalThis.CasaLogic = api;

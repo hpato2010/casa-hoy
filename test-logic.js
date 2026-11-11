@@ -103,4 +103,48 @@ test('normalizeWeekPlan rellena los siete días y las tres comidas', () => {
   assert.equal(plan[6].cena, '');
 });
 
+
+test('reminderDate usa 09:00 cuando no hay hora', () => {
+  const d = L.reminderDate({ dueAt: '2026-11-11' });
+  assert.equal(d.getHours(), 9);
+  assert.equal(d.getMinutes(), 0);
+});
+
+test('isReminderDue respeta fecha, hora y estado hecho', () => {
+  const now = new Date(2026, 10, 11, 12, 0);
+  assert.equal(L.isReminderDue({ dueAt: '2026-11-11T11:00', done: false }, now), true);
+  assert.equal(L.isReminderDue({ dueAt: '2026-11-11T13:00', done: false }, now), false);
+  assert.equal(L.isReminderDue({ dueAt: '2026-11-11T11:00', done: true }, now), false);
+  assert.equal(L.isReminderDue({ dueAt: null, done: false }, now), false);
+});
+
+test('reminderWhen describe hoy, mañana y fechas pasadas', () => {
+  const now = new Date(2026, 10, 11, 12, 0);
+  assert.equal(L.reminderWhen({ dueAt: '2026-11-11T18:00' }, now), 'Hoy, 18:00');
+  assert.equal(L.reminderWhen({ dueAt: '2026-11-12T09:30' }, now), 'Mañana, 09:30');
+  assert.equal(L.reminderWhen({ dueAt: '2026-11-10T08:00' }, now), 'Ayer, 08:00');
+  assert.equal(L.reminderWhen({ dueAt: null }, now), '');
+});
+
+test('buildICS genera eventos con alarma y escapa texto', () => {
+  const ics = L.buildICS([
+    { id: 'r1', text: 'Llamar al gasfiter, revisar llave; urgente', dueAt: '2026-11-11T18:00' },
+    { id: 'r2', text: 'Sin fecha' }
+  ], new Date(2026, 10, 11, 12, 0));
+  assert.match(ics, /^BEGIN:VCALENDAR\r\n/);
+  assert.match(ics, /END:VCALENDAR\r\n$/);
+  assert.match(ics, /UID:r1@casa-hoy/);
+  assert.match(ics, /DTSTART:20261111T180000/);
+  assert.match(ics, /SUMMARY:Llamar al gasfiter\\, revisar llave\\; urgente/);
+  assert.match(ics, /BEGIN:VALARM/);
+  assert.match(ics, /TRIGGER:-PT10M/);
+  assert.equal((ics.match(/BEGIN:VEVENT/g) || []).length, 1);
+});
+
+test('buildICS devuelve un calendario vacío sin fechas', () => {
+  const ics = L.buildICS([{ id: 'x', text: 'Nota', dueAt: null }]);
+  assert.equal((ics.match(/BEGIN:VEVENT/g) || []).length, 0);
+  assert.match(ics, /END:VCALENDAR/);
+});
+
 console.log(`\n${passed} pruebas correctas${process.exitCode ? ' · hay fallos' : ''}`);

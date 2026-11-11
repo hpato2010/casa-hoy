@@ -93,11 +93,22 @@
               <h3><span class="icon-tile tint-violet" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.3 7-11a7 7 0 1 0-14 0c0 5.7 7 11 7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg></span> Recordatorios</h3>
               <span class="pill" id="notes-count">0</span>
             </header>
-            <form class="inline-form" id="note-form" autocomplete="off">
+            <form class="inline-form reminder-form" id="note-form" autocomplete="off">
               <label class="sr-only" for="note-input">Nuevo recordatorio</label>
               <input id="note-input" maxlength="120" placeholder="Ej: regar las plantas, llamar al gasfiter…" required>
+              <label class="sr-only" for="note-date">Fecha (opcional)</label>
+              <input id="note-date" class="reminder-date" type="date">
+              <label class="sr-only" for="note-time">Hora (opcional)</label>
+              <input id="note-time" class="reminder-time" type="time">
               <button class="btn" type="submit">Añadir</button>
             </form>
+            <div class="reminder-tools">
+              <p class="notify-status" id="notify-status"></p>
+              <div class="reminder-tools-actions">
+                <button class="link" type="button" id="notify-enable" hidden>Activar avisos</button>
+                <button class="link" type="button" id="ics-export" hidden>Exportar .ics</button>
+              </div>
+            </div>
             <div class="list" id="notes-list"></div>
           </article>
         </div>

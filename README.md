@@ -51,8 +51,16 @@ Los datos se guardan en cada dispositivo, no en el repositorio. Usa «Exportar c
 - **Tareas** — se repiten según su frecuencia (diaria, semanal, mensual o una sola vez). Al marcarlas, calculan solas cuándo vuelven y avisan si están atrasadas.
 - **Comidas** — menú semanal de desayuno, almuerzo y cena. Se repite cada semana y el día de hoy queda resaltado.
 - **Gastos** — registro rápido en pesos chilenos, total del mes y desglose por categoría. Puedes navegar entre meses.
-- **Recordatorios** — notas rápidas para lo que no quieres olvidar.
+- **Recordatorios** — notas rápidas o con fecha y hora. Si tienen fecha, puedes marcarlas como hechas, la app avisa cuando toca y puedes exportarlas a tu calendario.
 - **Copias de seguridad** — exporta todo a un archivo `.json` e impórtalo cuando quieras (por ejemplo, al cambiar de navegador).
+
+## Recordatorios y avisos
+
+- Al crear un recordatorio puedes poner **fecha y hora** (si omites la hora, se usa 09:00).
+- Cuando llega el momento, la app muestra el recordatorio como **«Te toca»** y lanza un aviso.
+- El botón **«Activar avisos»** pide permiso al navegador para mostrar notificaciones. Estos avisos funcionan **mientras la app esté abierta** (o instalada y en segundo plano mientras el navegador la mantenga activa); no hay notificaciones push con la app cerrada.
+- Para que el teléfono te avise **aunque la app esté cerrada**, usa **«Exportar .ics»** (o el icono de calendario de cada recordatorio): descarga un archivo que puedes abrir en Google Calendar, Apple Calendario u otra app, y esa app se encarga de la alarma.
+- En iPhone, las notificaciones del navegador requieren tener la app instalada en la pantalla de inicio (iOS 16.4 o superior). El calendario es la opción más confiable en móvil.
 
 ## Detalles útiles
 

@@ -474,6 +474,42 @@ body {
 }
 .row-delete:hover { background: var(--surface-2); color: var(--danger); }
 
+.row-icon {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.row-icon svg { width: 16px; height: 16px; }
+.row-icon:hover { background: var(--surface-2); color: var(--accent-strong); }
+
+.row.is-due {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border-radius: 12px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin: 0 -10px;
+  border-bottom-color: transparent;
+}
+
+.pill-due {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #ffffff;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  padding: 2px 8px;
+}
+@media (prefers-color-scheme: dark) {
+  .pill-due { background: linear-gradient(135deg, #6366f1, #7c3aed); }
+}
+
 .empty {
   padding: 16px 2px 18px;
   font-size: 13.5px;
@@ -607,7 +643,26 @@ select {
 .inline-form input, .inline-form select { flex: 1 1 170px; }
 .inline-form .qty { flex: 0 1 82px; min-width: 70px; }
 .inline-form .amount { flex: 0 1 118px; min-width: 96px; }
+.reminder-form #note-input { flex: 1 1 260px; }
+.reminder-form .reminder-date { flex: 0 0 164px; font-size: 13.5px; }
+.reminder-form .reminder-time { flex: 0 0 116px; font-size: 13.5px; }
 .inline-form .btn { flex: none; }
+
+.reminder-tools {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.notify-status {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.reminder-tools-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.reminder-tools-actions .link { font-size: 12px; }
 
 .muted { color: var(--muted); font-size: 13.5px; }
 
@@ -942,6 +997,7 @@ select {
   .meal-row .meal-value { font-size: 13px; }
   .inline-form input, .inline-form select { flex: 1 1 100%; }
   .inline-form .qty, .inline-form .amount { flex: 1 1 40%; }
+  .reminder-form .reminder-date, .reminder-form .reminder-time { flex: 1 1 42%; }
   .inline-form .btn { flex: 1 1 100%; }
   .month-nav { width: 100%; justify-content: space-between; }
   .month-nav span { min-width: 0; flex: 1; }
