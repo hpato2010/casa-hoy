@@ -2,6 +2,10 @@
 
 Una micro app para el día a día en casa: lista de compras, tareas que se repiten solas, menú semanal, gastos del mes y recordatorios. Todo en una sola pantalla, sin cuentas, sin internet y sin instalar nada.
 
+**App publicada:** https://hpato2010.github.io/casa-hoy/
+
+Repositorio: https://github.com/hpato2010/casa-hoy
+
 ![Vista de Hoy](capturas/hoy-desktop.png)
 
 *Vista de Hoy con datos de ejemplo.*
@@ -16,7 +20,15 @@ No necesita conexión a internet. Los datos quedan en el almacenamiento local de
 
 ## Verla en el celular
 
-### Misma Wi-Fi (rápido, sin publicar nada)
+### Versión publicada (recomendada, con HTTPS e instalable)
+
+Abre **https://hpato2010.github.io/casa-hoy/** en el celular y añádela a la pantalla de inicio:
+- **iPhone (Safari):** Compartir → **Añadir a pantalla de inicio**.
+- **Android (Chrome):** menú ⋮ → **Instalar app** o **Añadir a pantalla de inicio**.
+
+Después de la primera visita funciona sin conexión y sin depender del Mac.
+
+### Misma Wi-Fi (alternativa local, sin publicar nada)
 
 1. Haz doble clic en `servir-en-red.command`. La ventana mostrará una dirección como `http://192.168.1.7:8765/`.
 2. Conecta el celular a la misma red Wi-Fi y abre esa dirección en Safari (iPhone) o Chrome (Android).
@@ -26,15 +38,11 @@ No necesita conexión a internet. Los datos quedan en el almacenamiento local de
 
 Limitaciones de esta opción: el Mac debe estar encendido y en la misma red, y el atajo no funciona sin conexión. Para que funcione de verdad como app instalada y sin internet, publícala con HTTPS (ver abajo).
 
-### Instalación real con HTTPS (funciona sin el Mac)
+### Cómo se publica (para futuras actualizaciones)
 
-La app es 100 % estática, así que puedes publicar la carpeta en cualquier hosting gratuito con HTTPS, por ejemplo GitHub Pages, Netlify o Cloudflare Pages. Luego:
+La app es 100 % estática y ya está publicada con GitHub Pages desde la rama `main`. Para actualizarla basta con subir los cambios a `main`; GitHub Pages reconstruye sola.
 
-1. Abre la URL publicada en el navegador del celular.
-2. iPhone: Compartir → **Añadir a pantalla de inicio**. Android: menú ⋮ → **Instalar app**.
-3. Los datos se guardan en el teléfono, igual que en el computador; usa «Exportar copia» si quieres pasarlos de un dispositivo a otro.
-
-Incluye `manifest.webmanifest`, `sw.js` e iconos para que el navegador la reconozca como app instalable y funcione sin conexión después de la primera visita.
+Los datos se guardan en cada dispositivo, no en el repositorio. Usa «Exportar copia» / «Importar copia» para pasarlos de un dispositivo a otro.
 
 ## Qué puedes hacer
 
